@@ -50,7 +50,7 @@ fenetre.rowconfigure(8, weight=4)
 pg.mixer.init()
 pg.mixer.music.load("Funky.1.mp3")
 pg.mixer.music.play(loops=-1)
-
+pg.mixer.music.set_volume(volume_selection/100)
 
 def quitter():
     if messagebox.askokcancel("Exit", "Voulez-vous vraiment quitter ?"):
@@ -77,13 +77,40 @@ def commencer():
     game_fenetre = tk.Toplevel()
     game_fenetre.title("Flag Guesser - Game")
     game_fenetre.attributes('-fullscreen', True)
-
-    def countdown():
-        nonlocal time_left
-        if time_left > 0:
-            time_left -= 1
-            timer_label.configure(text=str(time_left))
-            game_fenetre.after(1000, countdown)
+        
+    def flag_entry(event=None):
+        global good_contry
+        if nocturne_selection == "Désactivé":
+            if nameflag_entry.get().lower() == good_contry:
+                image_true_originel = Image.open("png_True_False/True_white.png")
+                image_true_redi = image_true_originel.resize((50, 50))
+                image_true = ImageTk.PhotoImage(image_true_redi)
+                label_true = ttk.Label(game_fenetre, image=image_true)
+                label_true.image = image_true
+                label_true.grid(column=0, row=2, sticky="e", padx=(0,200), pady=0)
+            else:
+                image_true_originel = Image.open("png_True_False/False_white.png")
+                image_true_redi = image_true_originel.resize((50, 50))
+                image_true = ImageTk.PhotoImage(image_true_redi)
+                label_true = ttk.Label(game_fenetre, image=image_true)
+                label_true.image = image_true
+                label_true.grid(column=0, row=2, sticky="e", padx=(0,200), pady=0)
+            afficher_prochain_drapeau_moyen()
+        elif nocturne_selection == "Activé":
+            if nameflag_entry.get().lower() == good_contry:
+                image_true_originel = Image.open("png_True_False/True_black.png")
+                image_true_redi = image_true_originel.resize((50, 50))
+                image_true = ImageTk.PhotoImage(image_true_redi)
+                label_true = ttk.Label(game_fenetre, image=image_true)
+                label_true.image = image_true
+                label_true.grid(column=0, row=2, sticky="e", padx=(0,200), pady=0)
+            else:
+                image_true_originel = Image.open("png_True_False/False_black.png")
+                image_true_redi = image_true_originel.resize((50, 50))
+                image_true = ImageTk.PhotoImage(image_true_redi)
+                label_true = ttk.Label(game_fenetre, image=image_true)
+                label_true.image = image_true
+                label_true.grid(column=0, row=2, sticky="e", padx=(0,200), pady=0)
 
     for col in range(3):
         for row in range(3):
@@ -101,30 +128,65 @@ def commencer():
     exit_game = ttk.Button(game_fenetre, text="Exit", command=game_fenetre.destroy, width=10, bootstyle=DANGER)
     exit_game.grid(sticky="ne", column=2, row=0, pady=0, padx=0)
 
-    timer_label = ttk.Label(game_fenetre, text="",font=a50)
-    timer_label.grid(row=0, column=1, padx=0, sticky="sw")
-
     score_label = ttk.Label(game_fenetre, text="Score", font=a30)
     score_label.grid(column=0, row=0, sticky="nw", padx= 20)
 
     guess_label = ttk.Label(game_fenetre, text="Devine le drapeau : ", font=a30)
     guess_label.grid(column=0, row=0, sticky="sw", padx= 20)
 
-    nameflag_combobox = ttk.Combobox(game_fenetre, )
+    nameflag_entry = ttk.Entry(game_fenetre, width=25, font=a30)
+    nameflag_entry.grid(row=2, column=0, sticky="w", padx=(475, 0))
+    nameflag_entry.bind("<Return>", flag_entry)
+    nameflag_entry.focus_set() # Pour pouvoir directement écrire sans devoir appuyer avec la souris
 
-    
-    if difficulty_selection == "30 drapeaux 'moyen'":
-        image_originale = Image.open("Vietnam.png")
-        image_redimensionnee = image_originale.resize((700, 466))
-        image_vietnam = ImageTk.PhotoImage(image_redimensionnee)
-        label_vietnam = ttk.Label(game_fenetre, image=image_vietnam)
-        label_vietnam.image = image_vietnam
-        label_vietnam.grid(column=0, row=1, sticky="w", padx=(300, 0), pady=0)
+    def afficher_drapeau(image_path):
 
+        image_pays_originale = Image.open(image_path)
+        image_pays_redimensionnee = image_pays_originale.resize((700, 466))
+        image_pays = ImageTk.PhotoImage(image_pays_redimensionnee)
+        label_pays = ttk.Label(game_fenetre, image=image_pays)
+        label_pays.image = image_pays
+        label_pays.grid(column=0, row=1, sticky="w", padx=(400, 0), pady=0)
+
+    def countdown():
+            nonlocal time_left
+            if time_left > 0:
+                time_left -= 1
+                timer_label.configure(text=str(time_left))
+                game_fenetre.after(1000, countdown)
+
+    timer_label = ttk.Label(game_fenetre, text="",font=a50)
+    timer_label.grid(row=0, column=1, padx=0, sticky="sw")
     time_left = int(time_selection) + 1
     timer_label.configure(text=str(time_left))
-    countdown()
 
+
+
+    if difficulty_selection == "30 drapeaux 'moyen'":
+        def afficher_prochain_drapeau_moyen():
+            global good_contry, image_path
+            nonlocal time_left
+            list_flag_moyen = [1, 2]
+            if list_flag_moyen:  # Si il reste des drapeaux à afficher et du temps
+                random_flag_moyen = r.choice(list_flag_moyen)
+                if time_left != 0:
+                    if random_flag_moyen == 1:
+                        good_contry = "vietnam"
+                        image_path = "png_Contry/Vietnam.png"
+                    elif random_flag_moyen == 2:
+                        good_contry = "iran"
+                        image_path = "png_Contry/Iran.png"
+                    afficher_drapeau(image_path)
+                    list_flag_moyen.remove(random_flag_moyen)
+                else:
+                    list_flag_moyen.remove(random_flag_moyen)
+
+        afficher_prochain_drapeau_moyen()
+        countdown()
+            
+    
+    
+    
     
 
 
