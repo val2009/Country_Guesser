@@ -6,7 +6,7 @@ import time as t
 import pygame as pg
 import random as r
 from PIL import Image, ImageTk
-
+import os
 
 fenetre = tk.Tk()
 fenetre.title("Flag Guesser")
@@ -150,7 +150,7 @@ def commencer():
 
     def countdown():
             nonlocal time_left
-            if time_left > 0:
+            while time_left > 0:
                 time_left -= 1
                 timer_label.configure(text=str(time_left))
                 game_fenetre.after(1000, countdown)
